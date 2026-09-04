@@ -7,16 +7,17 @@ type MovieGridProps = {
   movies: Array<HomeMovie>;
   page: number;
   pageCount: number;
+  selectedDate: string;
   onPageChange: (page: number) => void;
 };
 
-function MovieGrid({ movies, onPageChange, page, pageCount }: MovieGridProps) {
+function MovieGrid({ movies, onPageChange, page, pageCount, selectedDate }: MovieGridProps) {
   return (
     <div className="space-y-8">
       {movies.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard key={movie.id} movie={movie} selectedDate={selectedDate} />
           ))}
         </div>
       ) : (

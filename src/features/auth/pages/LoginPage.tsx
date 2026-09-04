@@ -1,6 +1,6 @@
 import { useState, type SubmitEvent } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff, Film, Lock, Mail, ShieldCheck, Ticket } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, Ticket } from "lucide-react";
 
 import { authApi } from "../services/authApi";
 import { useAuthStore } from "../store/authStore";
@@ -8,6 +8,7 @@ import { loginSchema } from "../validations/loginValidation";
 import type { LoginPayload } from "../types/authTypes";
 
 import { Alert, AlertDescription, Button, Input, Label } from "#/shared/components/ui";
+import { BrandLogo } from "#/shared/components/layout/BrandLogo";
 import {
   getFormValidationErrors,
   type FormValidationErrors,
@@ -29,6 +30,9 @@ function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const redirectTo = useRouterState({
+    select: (state) => (state.location.search as { redirectTo?: string }).redirectTo,
+  });
 
   const loginCustomer = useAuthStore((state) => state.login);
 
@@ -65,6 +69,11 @@ function LoginPage() {
 
       loginCustomer(customer);
 
+      if (redirectTo) {
+        void navigate({ href: redirectTo });
+        return;
+      }
+
       void navigate({ to: "/dashboard" });
     } catch (error) {
       setFormError(getApiErrorMessage(error, "Unable to sign in. Please try again."));
@@ -85,18 +94,11 @@ function LoginPage() {
 
         <div className="relative flex min-h-screen flex-col justify-between p-10">
           <Link className="flex w-fit items-center gap-3" to="/">
-            <span className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-lg">
-              <Film className="size-5" aria-hidden="true" />
-            </span>
-
-            <div>
-              <p className="text-lg font-semibold">977Cinema</p>
-              <p className="text-secondary-foreground/70 text-sm">Customer Booking</p>
-            </div>
+            <BrandLogo imageClassName="h-20" />
           </Link>
 
           <div className="max-w-lg">
-            <p className="text-secondary-foreground/70 text-sm font-medium">Your Tickets, Ready</p>
+            <p className="text-secondary-foreground/70 text-sm font-medium">Your Tickets, Ready!</p>
             <h1 className="mt-4 text-4xl font-semibold tracking-normal">
               Sign In Before Checkout And Keep Every Booking In One Place.
             </h1>
@@ -127,12 +129,9 @@ function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center justify-between gap-4 lg:hidden">
             <Link className="flex items-center gap-3" to="/">
-              <span className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-lg">
-                <Film className="size-5" aria-hidden="true" />
-              </span>
+              <BrandLogo imageClassName="h-12" />
 
               <div>
-                <p className="text-lg font-semibold">977Cinema</p>
                 <p className="text-muted text-sm">Customer Booking</p>
               </div>
             </Link>
@@ -143,7 +142,8 @@ function LoginPage() {
               <p className="text-primary text-sm font-medium">Welcome Back</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-normal">Sign In To Continue</h2>
               <p className="text-muted-foreground mt-2 text-sm leading-6">
-                Access your bookings, checkout faster, and keep your tickets ready.
+                Access your account to manage bookings, view tickets, and enjoy a seamless movie
+                experience.
               </p>
             </div>
 

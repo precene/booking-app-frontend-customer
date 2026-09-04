@@ -2,45 +2,74 @@ import { create } from "zustand";
 
 import type { Customer } from "../types/authTypes";
 
-const AUTH_CUSTOMER_STORAGE_KEY = "customer_user";
-
 interface AuthStore {
   customer: Customer | null;
   email: string | null;
+  hasCheckedSession: boolean;
+  isLoadingCustomer: boolean;
   login: (customer: Customer) => void;
   logout: () => void;
+  resetSessionCheck: () => void;
+  setCustomer: (customer: Customer | null) => void;
+  setSessionLoading: (isLoadingCustomer: boolean) => void;
+  updateCustomer: (customer: Partial<Customer>) => void;
 }
-
-function getStoredCustomer() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const customer = window.localStorage.getItem(AUTH_CUSTOMER_STORAGE_KEY);
-
-  if (!customer) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(customer) as Customer;
-  } catch {
-    window.localStorage.removeItem(AUTH_CUSTOMER_STORAGE_KEY);
-    return null;
-  }
-}
-
-const storedCustomer = getStoredCustomer();
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  customer: storedCustomer,
-  email: storedCustomer?.email ?? null,
+  customer: null,
+  email: null,
+  hasCheckedSession: false,
+  isLoadingCustomer: false,
+
   login: (customer) => {
-    window.localStorage.setItem(AUTH_CUSTOMER_STORAGE_KEY, JSON.stringify(customer));
-    set({ customer, email: customer.email });
+    set({
+      customer,
+      email: customer.email,
+      hasCheckedSession: true,
+      isLoadingCustomer: false,
+    });
   },
+
   logout: () => {
-    window.localStorage.removeItem(AUTH_CUSTOMER_STORAGE_KEY);
-    set({ customer: null, email: null });
+    set({
+      customer: null,
+      email: null,
+      hasCheckedSession: true,
+      isLoadingCustomer: false,
+    });
+  },
+
+  resetSessionCheck: () => {
+    set({
+      customer: null,
+      email: null,
+      hasCheckedSession: false,
+      isLoadingCustomer: false,
+    });
+  },
+
+  setCustomer: (customer) => {
+    set({
+      customer,
+      email: customer?.email ?? null,
+      hasCheckedSession: true,
+      isLoadingCustomer: false,
+    });
+  },
+
+  setSessionLoading: (isLoadingCustomer) => {
+    set({ isLoadingCustomer });
+  },
+
+  updateCustomer: (customer) => {
+    set((state) => {
+      if (!state.customer) {
+        return state;
+      }
+
+      const updatedCustomer = { ...state.customer, ...customer };
+
+      return { customer: updatedCustomer, email: updatedCustomer.email };
+    });
   },
 }));

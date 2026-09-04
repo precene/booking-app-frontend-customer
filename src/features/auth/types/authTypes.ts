@@ -3,6 +3,8 @@ export interface Customer {
   email: string;
   fullName: string;
   phone: string | null;
+  cityId?: null | string;
+  cityName?: null | string;
   role: "admin" | "customer" | "staff";
   active: boolean;
   createdAt: string;

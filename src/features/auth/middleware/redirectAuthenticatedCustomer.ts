@@ -1,9 +1,11 @@
 import { redirect } from "@tanstack/react-router";
 
-import { useAuthStore } from "../store/authStore";
+import { loadCustomerSession } from "../services/customerSession";
 
-export function redirectAuthenticatedCustomer() {
-  if (useAuthStore.getState().customer) {
+export async function redirectAuthenticatedCustomer() {
+  const customer = await loadCustomerSession();
+
+  if (customer) {
     throw redirect({ to: "/dashboard" });
   }
 }

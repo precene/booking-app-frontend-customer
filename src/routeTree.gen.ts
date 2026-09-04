@@ -12,12 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected.dashboard'
 import { Route as ProtectedMyBookingsRouteImport } from './routes/_protected.my-bookings'
 import { Route as ProtectedMyPaymentsRouteImport } from './routes/_protected.my-payments'
 import { Route as ProtectedSettingsRouteImport } from './routes/_protected.settings'
 import { Route as PublicLoginRouteImport } from './routes/_public.login'
 import { Route as BookingShowtimeIdRouteImport } from './routes/booking.$showtimeId'
+import { Route as BookingCancelRouteImport } from './routes/booking.cancel'
+import { Route as BookingSuccessRouteImport } from './routes/booking.success'
 import { Route as MoviesMovieIdRouteImport } from './routes/movies.$movieId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -31,6 +34,11 @@ const ProtectedRoute = ProtectedRouteImport.update({
 } as any)
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
@@ -63,6 +71,16 @@ const BookingShowtimeIdRoute = BookingShowtimeIdRouteImport.update({
   path: '/booking/$showtimeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingCancelRoute = BookingCancelRouteImport.update({
+  id: '/booking/cancel',
+  path: '/booking/cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingSuccessRoute = BookingSuccessRouteImport.update({
+  id: '/booking/success',
+  path: '/booking/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MoviesMovieIdRoute = MoviesMovieIdRouteImport.update({
   id: '/movies/$movieId',
   path: '/movies/$movieId',
@@ -71,22 +89,28 @@ const MoviesMovieIdRoute = MoviesMovieIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/my-bookings': typeof ProtectedMyBookingsRoute
   '/my-payments': typeof ProtectedMyPaymentsRoute
   '/settings': typeof ProtectedSettingsRoute
   '/login': typeof PublicLoginRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/booking/cancel': typeof BookingCancelRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/movies/$movieId': typeof MoviesMovieIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/my-bookings': typeof ProtectedMyBookingsRoute
   '/my-payments': typeof ProtectedMyPaymentsRoute
   '/settings': typeof ProtectedSettingsRoute
   '/login': typeof PublicLoginRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/booking/cancel': typeof BookingCancelRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/movies/$movieId': typeof MoviesMovieIdRoute
 }
 export interface FileRoutesById {
@@ -94,46 +118,58 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/verify-email': typeof VerifyEmailRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/my-bookings': typeof ProtectedMyBookingsRoute
   '/_protected/my-payments': typeof ProtectedMyPaymentsRoute
   '/_protected/settings': typeof ProtectedSettingsRoute
   '/_public/login': typeof PublicLoginRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/booking/cancel': typeof BookingCancelRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/movies/$movieId': typeof MoviesMovieIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/verify-email'
     | '/dashboard'
     | '/my-bookings'
     | '/my-payments'
     | '/settings'
     | '/login'
     | '/booking/$showtimeId'
+    | '/booking/cancel'
+    | '/booking/success'
     | '/movies/$movieId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/verify-email'
     | '/dashboard'
     | '/my-bookings'
     | '/my-payments'
     | '/settings'
     | '/login'
     | '/booking/$showtimeId'
+    | '/booking/cancel'
+    | '/booking/success'
     | '/movies/$movieId'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/_public'
+    | '/verify-email'
     | '/_protected/dashboard'
     | '/_protected/my-bookings'
     | '/_protected/my-payments'
     | '/_protected/settings'
     | '/_public/login'
     | '/booking/$showtimeId'
+    | '/booking/cancel'
+    | '/booking/success'
     | '/movies/$movieId'
   fileRoutesById: FileRoutesById
 }
@@ -141,7 +177,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
+  VerifyEmailRoute: typeof VerifyEmailRoute
   BookingShowtimeIdRoute: typeof BookingShowtimeIdRoute
+  BookingCancelRoute: typeof BookingCancelRoute
+  BookingSuccessRoute: typeof BookingSuccessRoute
   MoviesMovieIdRoute: typeof MoviesMovieIdRoute
 }
 
@@ -166,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/dashboard': {
@@ -208,6 +254,20 @@ declare module '@tanstack/react-router' {
       path: '/booking/$showtimeId'
       fullPath: '/booking/$showtimeId'
       preLoaderRoute: typeof BookingShowtimeIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/cancel': {
+      id: '/booking/cancel'
+      path: '/booking/cancel'
+      fullPath: '/booking/cancel'
+      preLoaderRoute: typeof BookingCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/success': {
+      id: '/booking/success'
+      path: '/booking/success'
+      fullPath: '/booking/success'
+      preLoaderRoute: typeof BookingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movies/$movieId': {
@@ -253,7 +313,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
+  VerifyEmailRoute: VerifyEmailRoute,
   BookingShowtimeIdRoute: BookingShowtimeIdRoute,
+  BookingCancelRoute: BookingCancelRoute,
+  BookingSuccessRoute: BookingSuccessRoute,
   MoviesMovieIdRoute: MoviesMovieIdRoute,
 }
 export const routeTree = rootRouteImport
