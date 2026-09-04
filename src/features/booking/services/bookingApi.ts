@@ -72,6 +72,15 @@ export const bookingApi = {
     return `${normalizedBaseUrl}/me/tickets/${ticketId}/qr.png`;
   },
 
+  getTicketQrImage: async (ticketId: string) => {
+    const response = await apiClient.get<Blob>(`/me/tickets/${ticketId}/qr.png`, {
+      headers: { Accept: "image/png" },
+      responseType: "blob",
+    });
+
+    return response.data;
+  },
+
   getAnonymousHoldSession: async (showtimeId: string) => {
     const response = await apiClient.get<ApiResponse<SeatHoldSession | null>>(
       "/hold-sessions/anonymous",

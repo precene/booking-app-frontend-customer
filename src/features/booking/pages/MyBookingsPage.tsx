@@ -3,6 +3,7 @@ import {
   CalendarDays,
   Clock,
   Download,
+  Eye,
   Film,
   MapPin,
   RefreshCcw,
@@ -12,12 +13,23 @@ import {
 import { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 
-import { Button, Pagination } from "#/shared/components/ui";
+import { useAuthStore } from "#/features/auth/store/authStore";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Pagination,
+} from "#/shared/components/ui";
 import { toast } from "#/shared/components/ui/toast";
 import type { ApiPaginated } from "#/shared/types";
 import { cn } from "#/shared/utils/cn";
 import { getApiErrorMessage } from "#/shared/utils/getApiErrorMessage";
 
+import { BookingTicketTemplate } from "../components/BookingTicketTemplate";
 import { bookingApi } from "../services/bookingApi";
 import type {
   BookingShow,
@@ -55,6 +67,7 @@ function MyBookingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const customer = useAuthStore((state) => state.customer);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(bookings.total / bookings.limit)),
@@ -175,6 +188,7 @@ function MyBookingsPage() {
           {bookingDetails.map((booking) => (
             <BookingCard
               booking={booking}
+              customer={customer}
               isCancelling={cancellingBookingId === booking.id}
               key={booking.id}
               onCancel={() => void handleCancelBooking(booking.id)}
@@ -215,11 +229,15 @@ function MyBookingsPage() {
 
 type BookingCardProps = {
   booking: EnrichedBooking;
+  customer: null | {
+    email: string;
+    fullName: string;
+  };
   isCancelling: boolean;
   onCancel: () => void;
 };
 
-function BookingCard({ booking, isCancelling, onCancel }: BookingCardProps) {
+function BookingCard({ booking, customer, isCancelling, onCancel }: BookingCardProps) {
   const seatLabels = booking.seats.map((seat) => `${seat.rowLabel}${seat.seatLabel}`).join(", ");
   const showDateTime = booking.show
     ? formatShowDateTime(booking.show)
@@ -228,6 +246,13 @@ function BookingCard({ booking, isCancelling, onCancel }: BookingCardProps) {
     ? `${booking.show.venue.name}, ${booking.show.venue.city.name}`
     : (booking.show?.venue.name ?? "Venue Details Unavailable");
   const canCancel = booking.status === "pending";
+
+  function handleDownloadTicket() {
+    toast.destructive({
+      description: "PDF ticket download will be available soon.",
+      title: "Download Not Ready.",
+    });
+  }
 
   return (
     <article className="bg-surface overflow-hidden rounded-md border shadow-sm">
@@ -274,15 +299,35 @@ function BookingCard({ booking, isCancelling, onCancel }: BookingCardProps) {
 
         <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
           {booking.ticket ? (
-            <Button variant="outline" asChild>
-              <a
-                href={bookingApi.getTicketQrUrl(booking.ticket.id)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Download aria-hidden="true" />
-                Download Ticket
-              </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" type="button">
+                  <Eye aria-hidden="true" />
+                  View Ticket
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto p-0">
+                <DialogHeader className="sr-only">
+                  <DialogTitle>View Ticket</DialogTitle>
+                  <DialogDescription>
+                    Preview your booking ticket and QR code for venue entry.
+                  </DialogDescription>
+                </DialogHeader>
+                <BookingTicketTemplate
+                  booking={booking}
+                  className="border-0 shadow-none"
+                  customer={customer ?? undefined}
+                  show={booking.show}
+                  ticketId={booking.ticket.id}
+                />
+              </DialogContent>
+            </Dialog>
+          ) : null}
+
+          {booking.ticket ? (
+            <Button variant="outline" type="button" onClick={handleDownloadTicket}>
+              <Download aria-hidden="true" />
+              Download Ticket
             </Button>
           ) : null}
 

@@ -10,6 +10,7 @@ import type {
   MyBookingDetails,
 } from "#/features/booking/types/bookingTypes";
 import { Button, Pagination } from "#/shared/components/ui";
+import { toast } from "#/shared/components/ui/toast";
 import { cn } from "#/shared/utils/cn";
 import { getApiErrorMessage } from "#/shared/utils/getApiErrorMessage";
 
@@ -192,6 +193,13 @@ function PaymentRow({ payment }: { payment: PaymentHistoryItem }) {
     ? `${payment.show.venue.name}, ${payment.show.venue.city.name}`
     : (payment.show?.venue.name ?? "Venue Unavailable");
 
+  function handleDownloadReceipt() {
+    toast.destructive({
+      description: "PDF receipt download will be available soon.",
+      title: "Download Not Ready.",
+    });
+  }
+
   return (
     <article className="grid gap-4 px-5 py-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto] lg:items-center">
       <div>
@@ -220,16 +228,10 @@ function PaymentRow({ payment }: { payment: PaymentHistoryItem }) {
 
       <StatusBadge status={payment.status} />
 
-      {payment.ticket ? (
-        <Button variant="outline" size="sm" asChild>
-          <a href={bookingApi.getTicketQrUrl(payment.ticket.id)} target="_blank" rel="noreferrer">
-            <Download aria-hidden="true" />
-            Ticket
-          </a>
-        </Button>
-      ) : (
-        <span className="text-muted-foreground text-sm">Not Available</span>
-      )}
+      <Button variant="outline" size="sm" type="button" onClick={handleDownloadReceipt}>
+        <Download aria-hidden="true" />
+        Download Receipt
+      </Button>
     </article>
   );
 }
